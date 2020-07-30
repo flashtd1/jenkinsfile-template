@@ -1,0 +1,36 @@
+pipeline {
+    agent any 
+
+    stages {
+        stage('Git') { 
+            steps { 
+                git branch:  params.branch, credentialsId: params.credId, url: params.GitUrl
+            }
+        }
+
+        stage('写入配置') {
+          steps {
+            sh '''
+              ''' + params.WriteFile + '''
+            '''
+          }
+        }
+        
+        stage('构建镜像') { 
+            steps {
+               sh '''
+                 docker build -t ${origin_repo}/account/${repo}:${image_tag} .
+               '''
+            }
+        }
+
+        stage('清理镜像 ') {
+            steps {
+                sh '''
+                  docker system prune -f
+                '''
+            }
+        }
+        
+    }
+}
